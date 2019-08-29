@@ -1,0 +1,80 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform int MAX_STEPS = 100;
+uniform float MAX_DIST = 20;
+uniform float MIN_HIT_DIST = 0.0001;
+
+uniform float fov = 45.0;
+uniform vec3 cameraPos = vec3(0.0, 0.0, 5.0);
+uniform vec3 front = vec3(0.0, 0.0, -1.0);
+uniform vec3 up = vec3(0.0, 1.0, 0.0);
+
+float sdSphere( vec3 p, float s )
+{
+  	return length(p)-s;
+}
+
+float sdf(vec3 p)
+{
+	return sdSphere(p, 1.0);
+}
+
+vec3 raymarch(vec3 rayDir)
+{
+	vec3 hitColor = vec3(1.0, 1.0, 1.0);
+	vec3 missColor = vec3(0.0, 0.0, 0.0);
+	vec3 rimColor = vec3(0.3, 0.3, 1.0);
+	
+	float depth = 0.0;
+	float minDist = MAX_DIST;
+	for (int i=0; depth<MAX_DIST && i<MAX_STEPS; ++i)
+	{
+		vec3 pos = cameraPos + rayDir * depth;
+		float dist = sdf(pos);
+		minDist = min(minDist, dist);
+		if (dist < MIN_HIT_DIST) {
+			return hitColor;
+		}
+		depth += dist;
+	}
+	return mix(rimColor, missColor, smoothstep(0, 0.05, minDist));
+}
+
+void fragment()
+{
+	vec2 resolution = 1.0 / SCREEN_PIXEL_SIZE;
+	float aspect = resolution.x / resolution.y;
+	float fov2 = radians(fov) / 2.0;
+	
+	vec2 screenCoord = (UV - 0.5) * 2.0;
+	screenCoord.x *= aspect;
+	screenCoord.y = -screenCoord.y;
+	
+	vec2 offsets = screenCoord * tan(fov2);
+	
+	vec3 rayFront = normalize(front);
+	vec3 rayRight = cross(rayFront, normalize(up));
+	vec3 rayUp = cross(rayRight, rayFront);	
+	vec3 rayDir = rayFront + rayRight * offsets.x + rayUp * offsets.y;
+
+	COLOR = vec4(raymarch(rayDir), 1.0);
+}
+"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/MAX_STEPS = 100
+shader_param/MAX_DIST = 20.0
+shader_param/MIN_HIT_DIST = 0.0001
+shader_param/fov = 45.0
+shader_param/cameraPos = Vector3( 0, 0, 5 )
+shader_param/front = Vector3( 0, 0, -1 )
+shader_param/up = Vector3( 0, 1, 0 )
+
+[node name="ColorRect" type="ColorRect"]
+material = SubResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
