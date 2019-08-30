@@ -15,8 +15,8 @@ _global_script_class_icons={
 
 [application]
 
-config/name="RayMarcher"
-run/main_scene="res://RayMarching/RayMarching_main.tscn"
+config/name="Raymarcher Tutorial"
+run/main_scene="res://Raymarcher.tscn"
 config/icon="res://icon.png"
 
 [rendering]
