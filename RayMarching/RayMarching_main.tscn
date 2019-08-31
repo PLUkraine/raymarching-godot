@@ -63,7 +63,6 @@ vec3 raymarch(vec3 rayDir)
     vec3 ambientColor = vec3(1.0, 1.0, 1.0);
 	vec3 hitColor = vec3(1.0, 1.0, 1.0);
 	vec3 missColor = vec3(0.0, 0.0, 0.0);
-	vec3 rimColor = vec3(1.0, 0.3, 1.0);
 	
 	float depth = 0.0;
 	float minDist = MAX_DIST;
@@ -74,12 +73,14 @@ vec3 raymarch(vec3 rayDir)
 		minDist = min(minDist, dist);
 		if (dist < MIN_HIT_DIST) {
             vec3 normal = estimateNormal(pos);
-			return blinnPhong(pos, lightPos, normal, hitColor);
+            vec3 lightningColor = blinnPhong(pos, lightPos, normal, hitColor);
+            
+            float stepsRatio = float(i)/float(MAX_STEPS); // smooth transition between background and foreground
+			return mix(lightningColor, missColor, stepsRatio);
 		}
 		depth += dist;
 	}
     return missColor;
-//	return mix(rimColor, missColor, smoothstep(0, RIM_THICKNESS, minDist));
 }
 
 vec3 getRayDirection(vec2 resolution, vec2 uv)
@@ -100,7 +101,7 @@ vec3 getRayDirection(vec2 resolution, vec2 uv)
 	vec3 rayUp = cross(rayRight, rayFront);
 	vec3 rayDir = rayFront + rayRight * offsets.x + rayUp * offsets.y;
 	
-	return rayDir;
+	return normalize(rayDir);
 }
 
 void fragment()
@@ -114,7 +115,7 @@ void fragment()
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = SubResource( 1 )
-shader_param/MAX_STEPS = 100
+shader_param/MAX_STEPS = 150
 shader_param/MAX_DIST = 20.0
 shader_param/MIN_HIT_DIST = 0.0001
 shader_param/DERIVATIVE_STEP = 0.0001
@@ -125,7 +126,7 @@ shader_param/specularCoeff = 1.0
 shader_param/specularExponent = 64.0
 shader_param/lightPos = Vector3( 0, 5, 0 )
 shader_param/fov = 45.0
-shader_param/cameraPos = Vector3( 0, 0, 5 )
+shader_param/cameraPos = Vector3( 0, 0, 3 )
 shader_param/front = Vector3( 0, 0, -1 )
 shader_param/up = Vector3( 0, 1, 0 )
 
