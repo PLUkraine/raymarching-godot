@@ -6,6 +6,15 @@ code = "shader_type canvas_item;
 uniform int MAX_STEPS = 250;
 uniform float MAX_DIST = 20;
 uniform float MIN_HIT_DIST = 0.00001;
+uniform float DERIVATIVE_STEP = 0.0001;
+
+uniform float globalAmbient = 0.1;
+uniform float globalDiffuse = 1.0;
+uniform float globalSpecular = 1.0;
+uniform float globalSpecularExponent = 64.0;
+uniform vec3 lightPos = vec3(-2.0, 5.0, 3.0);
+uniform vec3 lightColor = vec3(0.9, 0.9, 0.68);
+uniform vec3 ambientColor = vec3(1.0, 1.0, 1.0);
 
 uniform float fov = 45.0;
 uniform vec3 cameraPos = vec3(0.0, 0.0, 5.0);
@@ -22,20 +31,49 @@ float sdf(vec3 pos)
     return sdSphere(pos, vec3(0), 1);
 }
 
+vec3 estimateNormal(vec3 p) {
+    return normalize(vec3(
+        sdf(vec3(p.x + DERIVATIVE_STEP, p.y, p.z)) - sdf(vec3(p.x - DERIVATIVE_STEP, p.y, p.z)),
+        sdf(vec3(p.x, p.y + DERIVATIVE_STEP, p.z)) - sdf(vec3(p.x, p.y - DERIVATIVE_STEP, p.z)),
+        sdf(vec3(p.x, p.y, p.z  + DERIVATIVE_STEP)) - sdf(vec3(p.x, p.y, p.z - DERIVATIVE_STEP))
+    ));
+}
+
+vec3 blinnPhong(vec3 position, // hit point
+                vec3 lightPosition, // position of the light source
+                vec3 ambientCol, // ambient color
+                vec3 lightCol, // light source color
+                float ambientCoeff, // scale ambient contribution
+                float diffuseCoeff, // scale diffuse contribution
+                float specularCoeff, // scale specular contribution
+                float specularExponent // how focused should the shiny spot be
+)
+{
+    vec3 normal = estimateNormal(position);
+    vec3 toEye = normalize(cameraPos - position);
+    vec3 toLight = normalize(lightPosition - position);
+    vec3 reflection = reflect(-toLight, normal);
+    
+    vec3 ambientFactor = ambientCol * ambientCoeff;
+    vec3 diffuseFactor = diffuseCoeff * lightCol * max(0.0, dot(normal, toLight));
+    vec3 specularFactor = lightCol * pow(max(0.0, dot(toEye, reflection)), specularExponent)
+                     * specularCoeff;
+    
+    return ambientFactor + diffuseFactor + specularFactor;
+}
+
 vec3 raymarch(vec3 rayDir)
 {
-    vec3 hitColor = vec3(1.0, 1.0, 1.0);
     vec3 missColor = vec3(0.0, 0.0, 0.0);
 
     float depth = 0.0;
-    float minDist = MAX_DIST;
     for (int i=0; depth<MAX_DIST && i<MAX_STEPS; ++i)
     {
         vec3 pos = cameraPos + rayDir * depth;
         float dist = sdf(pos);
-        minDist = min(minDist, dist);
         if (dist < MIN_HIT_DIST) {
-            return hitColor;
+            return blinnPhong(pos, lightPos, ambientColor, lightColor,
+                globalAmbient, globalDiffuse, globalSpecular, globalSpecularExponent);
         }
         depth += dist;
     }
@@ -79,6 +117,14 @@ shader = SubResource( 1 )
 shader_param/MAX_STEPS = 250
 shader_param/MAX_DIST = 20.0
 shader_param/MIN_HIT_DIST = 1e-005
+shader_param/DERIVATIVE_STEP = 0.0001
+shader_param/globalAmbient = 0.1
+shader_param/globalDiffuse = 1.0
+shader_param/globalSpecular = 1.0
+shader_param/globalSpecularExponent = 64.0
+shader_param/lightPos = Vector3( -2, 5, 3 )
+shader_param/lightColor = Vector3( 0.9, 0.9, 0.68 )
+shader_param/ambientColor = Vector3( 1, 1, 1 )
 shader_param/fov = 45.0
 shader_param/cameraPos = Vector3( 0, 0, 5 )
 shader_param/front = Vector3( 0, 0, -1 )
