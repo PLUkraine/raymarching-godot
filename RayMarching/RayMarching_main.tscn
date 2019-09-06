@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://RayMarching/ColorRect.gd" type="Script" id=1]
-[ext_resource path="res://RayMarching/CameraScript.gd" type="Script" id=2]
+[ext_resource path="res://RayMarching/CameraMovement.gd" type="Script" id=2]
 [ext_resource path="res://RayMarching/FovSlider.gd" type="Script" id=3]
 
 [sub_resource type="Shader" id=1]
@@ -19,8 +19,8 @@ uniform float specularExponent = 64.0;
 uniform vec3 lightPos = vec3(0.0, 5.0, 0.0);
 
 uniform float fov = 45.0;
-uniform vec3 cameraPos = vec3(0.0, 0.0, 5.0);
-uniform vec3 front = vec3(0.0, 0.0, -1.0);
+uniform vec3 cameraPos = vec3(0.0, 0.0, -5.0);
+uniform vec3 front = vec3(0.0, 0.0, 1.0);
 uniform vec3 up = vec3(0.0, 1.0, 0.0);
 
 float sdPlane( vec3 p, vec4 n )
@@ -134,8 +134,8 @@ shader_param/specularCoeff = 1.0
 shader_param/specularExponent = 64.0
 shader_param/lightPos = Vector3( 0, 5, 0 )
 shader_param/fov = 45.0
-shader_param/cameraPos = Vector3( 0, 0, 5 )
-shader_param/front = Vector3( 0, 0, -1 )
+shader_param/cameraPos = Vector3( 0, 0, -5 )
+shader_param/front = Vector3( 0, 0, 1 )
 shader_param/up = Vector3( 0, 1, 0 )
 
 [node name="Node" type="Node"]
@@ -151,7 +151,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 1 )
 
-[node name="CameraScript" type="Node" parent="Control/ColorRect"]
+[node name="CameraMovemnet" type="Node" parent="Control/ColorRect"]
 script = ExtResource( 2 )
 MAX_VELOCITY = 500.0
 
