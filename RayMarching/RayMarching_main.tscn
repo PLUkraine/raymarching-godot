@@ -1,6 +1,8 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://RayMarching/ColorRect.gd" type="Script" id=1]
+[ext_resource path="res://RayMarching/CameraScript.gd" type="Script" id=2]
+[ext_resource path="res://RayMarching/FovSlider.gd" type="Script" id=3]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -9,7 +11,6 @@ uniform int MAX_STEPS = 100;
 uniform float MAX_DIST = 20;
 uniform float MIN_HIT_DIST = 0.0001;
 uniform float DERIVATIVE_STEP = 0.0001;
-uniform float RIM_THICKNESS = 0.05;
 
 uniform float ambientCoeff = 0.1;
 uniform float diffuseCoeff = 0.9;
@@ -22,14 +23,23 @@ uniform vec3 cameraPos = vec3(0.0, 0.0, 5.0);
 uniform vec3 front = vec3(0.0, 0.0, -1.0);
 uniform vec3 up = vec3(0.0, 1.0, 0.0);
 
-float sdSphere( vec3 p, float s )
+float sdPlane( vec3 p, vec4 n )
 {
-    return length(p)-s;
+    // n must be normalized
+    return dot(p,n.xyz) + n.w;
+}
+
+float sdSphere( vec3 p, vec3 c, float s )
+{
+    return length(c-p)-s;
 }
 
 float sdf(vec3 p)
 {
-    return sdSphere(p, 1.0);
+    float res = min(
+        sdSphere(p, vec3( 1.0, 0.0, 0.0), 1.0),
+        sdSphere(p, vec3(-1.0, 0.0, 0.0), 1.0));
+    return res;
 }
 
 vec3 estimateNormal(vec3 p) {
@@ -75,8 +85,7 @@ vec3 raymarch(vec3 rayDir)
             vec3 normal = estimateNormal(pos);
             vec3 lightningColor = blinnPhong(pos, lightPos, normal, hitColor);
             
-            float stepsRatio = float(i)/float(MAX_STEPS); // smooth transition between background and foreground
-			return mix(lightningColor, missColor, stepsRatio);
+			return lightningColor;
 		}
 		depth += dist;
 	}
@@ -115,18 +124,17 @@ void fragment()
 
 [sub_resource type="ShaderMaterial" id=2]
 shader = SubResource( 1 )
-shader_param/MAX_STEPS = 150
+shader_param/MAX_STEPS = 100
 shader_param/MAX_DIST = 20.0
 shader_param/MIN_HIT_DIST = 0.0001
 shader_param/DERIVATIVE_STEP = 0.0001
-shader_param/RIM_THICKNESS = 0.05
 shader_param/ambientCoeff = 0.2
 shader_param/diffuseCoeff = 0.9
 shader_param/specularCoeff = 1.0
 shader_param/specularExponent = 64.0
 shader_param/lightPos = Vector3( 0, 5, 0 )
 shader_param/fov = 45.0
-shader_param/cameraPos = Vector3( 0, 0, 3 )
+shader_param/cameraPos = Vector3( 0, 0, 5 )
 shader_param/front = Vector3( 0, 0, -1 )
 shader_param/up = Vector3( 0, 1, 0 )
 
@@ -142,3 +150,23 @@ material = SubResource( 2 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 1 )
+
+[node name="CameraScript" type="Node" parent="Control/ColorRect"]
+script = ExtResource( 2 )
+MAX_VELOCITY = 500.0
+
+[node name="UI" type="Control" parent="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="FovSlider" type="VSlider" parent="Control/UI"]
+margin_right = 32.0
+margin_bottom = 128.0
+min_value = 15.0
+max_value = 135.0
+step = 0.01
+value = 45.0
+tick_count = 10
+ticks_on_borders = true
+script = ExtResource( 3 )
+colorRect = NodePath("../../ColorRect")
