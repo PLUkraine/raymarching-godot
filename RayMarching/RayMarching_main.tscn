@@ -134,8 +134,8 @@ shader_param/specularCoeff = 1.0
 shader_param/specularExponent = 64.0
 shader_param/lightPos = Vector3( 0, 5, 0 )
 shader_param/fov = 45.0
-shader_param/cameraPos = Vector3( 0, 0, -5 )
-shader_param/front = Vector3( 0, 0, 1 )
+shader_param/cameraPos = Vector3( -5, 0, 0 )
+shader_param/front = Vector3( 1, 0, 0 )
 shader_param/up = Vector3( 0, 1, 0 )
 
 [node name="Node" type="Node"]
