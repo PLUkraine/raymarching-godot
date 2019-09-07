@@ -68,7 +68,7 @@ func _ready():
 func _input(event):
     if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
         mouseOffsets += event.relative * MOUSE_SENSITIVITY
-        mouseOffsets.y = clamp(mouseOffsets.y, -89.0, 89.0)
+        mouseOffsets.y = clamp(mouseOffsets.y, -75.0, 75.0)
         var newDirection = compute_direction(
             deg2rad(-mouseOffsets.y),
             deg2rad(mouseOffsets.x)

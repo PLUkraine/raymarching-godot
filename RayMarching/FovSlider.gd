@@ -1,10 +1,32 @@
 extends VSlider
 
 export(NodePath) var colorRect
+export(float) var wheelStep = 4
+
+onready var shaderNode = get_node(colorRect)
 
 func _ready():
-    get_node(colorRect).material.set_shader_param("fov", self.value)
+    # set current value
+    shaderNode.set_fov(self.value)
+    # connect signals
     self.connect("value_changed", self, "_on_value_changed")
+    shaderNode.connect("fov_changed", self, "on_fov_model_changed")
     
+
+func _input(event):
+    # scroll wheel to change fov
+    if event is InputEventMouseButton and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+        if event.is_pressed():
+            if event.button_index == BUTTON_WHEEL_UP:
+                value -= wheelStep
+            if event.button_index == BUTTON_WHEEL_DOWN:
+                value += wheelStep
+    
+
+func on_fov_model_changed(newValue):
+    if value != newValue:
+        value = newValue
+    
+
 func _on_value_changed(newValue):
-    get_node(colorRect).material.set_shader_param("fov", newValue)
+    shaderNode.set_fov(self.value)
