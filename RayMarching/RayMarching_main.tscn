@@ -19,8 +19,8 @@ uniform float specularExponent = 64.0;
 uniform vec3 lightPos = vec3(0.0, 5.0, 0.0);
 
 uniform float fov = 45.0;
-uniform vec3 cameraPos = vec3(0.0, 0.0, -5.0);
-uniform vec3 front = vec3(0.0, 0.0, 1.0);
+uniform vec3 cameraPos = vec3(-5.0, 0.0, 0.0);
+uniform vec3 front = vec3(1.0, 0.0, 0.0);
 uniform vec3 up = vec3(0.0, 1.0, 0.0);
 
 float sdPlane( vec3 p, vec4 n )
@@ -106,7 +106,7 @@ vec3 getRayDirection(vec2 resolution, vec2 uv)
 	vec2 offsets = screenCoord * tan(fov2);
 	
 	vec3 rayFront = normalize(front);
-	vec3 rayRight = cross(rayFront, normalize(up));
+	vec3 rayRight = normalize(cross(rayFront, normalize(up)));
 	vec3 rayUp = cross(rayRight, rayFront);
 	vec3 rayDir = rayFront + rayRight * offsets.x + rayUp * offsets.y;
 	
@@ -151,9 +151,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 1 )
 
-[node name="CameraMovemnet" type="Node" parent="Control/ColorRect"]
+[node name="CameraMovement" type="Node" parent="Control/ColorRect"]
 script = ExtResource( 2 )
-MAX_VELOCITY = 500.0
 
 [node name="UI" type="Control" parent="Control"]
 anchor_right = 1.0

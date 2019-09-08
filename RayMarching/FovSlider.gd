@@ -15,7 +15,7 @@ func _ready():
 
 func _input(event):
     # scroll wheel to change fov
-    if event is InputEventMouseButton and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+    if event is InputEventMouseButton:
         if event.is_pressed():
             if event.button_index == BUTTON_WHEEL_UP:
                 value -= wheelStep
