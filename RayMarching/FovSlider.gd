@@ -15,12 +15,10 @@ func _ready():
 
 func _input(event):
     # scroll wheel to change fov
-    if event is InputEventMouseButton:
-        if event.is_pressed():
-            if event.button_index == BUTTON_WHEEL_UP:
-                value -= wheelStep
-            if event.button_index == BUTTON_WHEEL_DOWN:
-                value += wheelStep
+    if event.is_action_pressed("camera_zoom_in"):
+        value -= wheelStep
+    elif event.is_action_pressed("camera_zoom_out"):
+        value += wheelStep
     
 
 func on_fov_model_changed(newValue):
