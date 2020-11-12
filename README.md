@@ -1,8 +1,22 @@
 # Raymarching Godot
 
-Code repo for my [series of blog posts](http://cgmathprog.home.blog/2019/08/29/raymarching-from-scratch-part-0/).
+This is my attempt to create a
+[Raymarching Renderer](http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/)
+in Godot Game engine. I'm
+using a fullscreen ColorRect node with a custom fragment shader.
 
-I have implemented a raymarching renderer in open source [Godot game engine](https://godotengine.org/) using framgemnt shader
+This is more of a reference project for those of you interested in learning this amazing
+rendering technique. I also have
+[series of blog posts](http://cgmathprog.home.blog/2019/08/29/raymarching-from-scratch-part-0/) 
+that cover raymarching in a greater detail.
+
+This demo supports FPS style camera with WASD as movement keys and QE as up/down keys.
+Press ESC to exit mouse capture mode. There is a slider on the left top corner to change the
+FOV of camera.
+
+You can navigate between tags to get code for each chapter in my tutorial.
+For example, `git checkout part3-fov` will get you code for the final chapter in part3.
+
 
 ## Screenshots
 
@@ -10,4 +24,10 @@ I have implemented a raymarching renderer in open source [Godot game engine](htt
 
 ## Build
 
-Download and unzip this repository. Then download [Godot](https://godotengine.org/download) Game Engine. Open the project via Godot and run it.
+Clone this repository.
+
+Download [Godot](https://godotengine.org/download) Game Engine (Standard version).
+
+Run Godot and import this project
+
+That's it! Just run it in editor or export to the platform of your choise.
